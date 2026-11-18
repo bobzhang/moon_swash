@@ -39,7 +39,7 @@ fn feature_test_build_sfnt(tables : Array[(UInt32, Bytes)]) -> Bytes {
   // Caller must provide tags in sorted order for internal table_range binary search.
   let num_tables = tables.length()
   let header_len = 12 + num_tables * 16
-  let out : Array[Byte] = Array::new()
+  let out : Array[Byte] = Array()
   feature_test_push_u32_be(out, feature_test_u32(0x00010000))
   feature_test_push_u16_be(out, num_tables)
   feature_test_push_u16_be(out, 0)
@@ -60,7 +60,7 @@ fn feature_test_build_sfnt(tables : Array[(UInt32, Bytes)]) -> Bytes {
       out.push(b)
     }
   }
-  Bytes::from_array(out.op_as_view())
+  Bytes::from_array(out[:])
 }
 
 ///|
@@ -80,7 +80,7 @@ fn feature_test_build_gsubgpos(
   let script_table_len = 26
   let script_list_len = 2 + 6 + script_table_len
   let feature_list_offset = script_list_offset + script_list_len
-  let out : Array[Byte] = Array::new()
+  let out : Array[Byte] = Array()
   // Header
   feature_test_push_u16_be(out, 1) // major
   feature_test_push_u16_be(out, 0) // minor
@@ -114,7 +114,7 @@ fn feature_test_build_gsubgpos(
   feature_test_push_u16_be(out, 0) // featureParams
   feature_test_push_u16_be(out, 0) // lookupIndexCount
   // Ensure lengths match expectations (no-op; sizes computed above)
-  Bytes::from_array(out.op_as_view())
+  Bytes::from_array(out[:])
 }
 
 ///|
@@ -122,7 +122,7 @@ fn feature_test_build_morx(feature : Int32, selector : Int32) -> Bytes {
   // Minimal morx table containing:
   // - chainCount = 1
   // - one chain with one feature record (feature + selector)
-  let out : Array[Byte] = Array::new()
+  let out : Array[Byte] = Array()
   // Header (version + reserved)
   feature_test_push_u16_be(out, 2)
   feature_test_push_u16_be(out, 0)
@@ -137,7 +137,7 @@ fn feature_test_build_morx(feature : Int32, selector : Int32) -> Bytes {
   feature_test_push_u16_be(out, selector)
   feature_test_push_u32_be(out, 0U) // enableFlags
   feature_test_push_u32_be(out, 0U) // disableFlags
-  Bytes::from_array(out.op_as_view())
+  Bytes::from_array(out[:])
 }
 
 ///|
@@ -148,7 +148,7 @@ test "FontRef::writing_systems enumerates GSUB/GPOS writing systems and features
   let sfnt = feature_test_build_sfnt(
     Array::from_fixed_array([(0x47504F53, gpos), (0x47535542, gsub)]),
   )
-  let font = FontRef::from_offset(sfnt, 0).unwrap()
+  let font = @moon_swash.FontRef::from_offset(sfnt, 0).unwrap()
   let wss = font.writing_systems().iter().to_array()
   // DFLT + ENG
   inspect(wss.length(), content="2")
@@ -164,7 +164,7 @@ test "FontRef::writing_systems enumerates GSUB/GPOS writing systems and features
       inspect(feats.length(), content="2")
       inspect(
         feats[0].tag().to_string(),
-        content=tag_from_str_lossy("liga").to_string(),
+        content=@moon_swash.tag_from_str_lossy("liga").to_string(),
       )
       inspect(
         match feats[0].action() {
@@ -175,7 +175,7 @@ test "FontRef::writing_systems enumerates GSUB/GPOS writing systems and features
       )
       inspect(
         feats[1].tag().to_string(),
-        content=tag_from_str_lossy("kern").to_string(),
+        content=@moon_swash.tag_from_str_lossy("kern").to_string(),
       )
       inspect(
         match feats[1].action() {
@@ -196,7 +196,7 @@ test "FontRef::features returns known features (unique across GSUB/GPOS)" {
   let sfnt = feature_test_build_sfnt(
     Array::from_fixed_array([(0x47504F53, gpos), (0x47535542, gsub)]),
   )
-  let font = FontRef::from_offset(sfnt, 0).unwrap()
+  let font = @moon_swash.FontRef::from_offset(sfnt, 0).unwrap()
   let feats = font.features().iter().to_array()
   inspect(feats.length(), content="2")
 }
@@ -209,10 +209,13 @@ test "FontRef::features enumerates morx features (and kern fallback)" {
   let sfnt = feature_test_build_sfnt(
     Array::from_fixed_array([(0x6B65726E, kern), (0x6D6F7278, morx)]),
   )
-  let font = FontRef::from_offset(sfnt, 0).unwrap()
+  let font = @moon_swash.FontRef::from_offset(sfnt, 0).unwrap()
   let feats = font.features().iter().to_array()
   inspect(feats.length(), content="2")
-  let (_, tag, desc) = desc_from_aat((1).to_uint16(), (0).to_uint16()).unwrap()
+  let (_, tag, desc) = @moon_swash.desc_from_aat(
+    (1).to_uint16(),
+    (0).to_uint16(),
+  ).unwrap()
   inspect(feats[0].tag().to_string(), content=tag.to_string())
   inspect(
     match feats[0].action() {
@@ -224,7 +227,7 @@ test "FontRef::features enumerates morx features (and kern fallback)" {
   inspect(feats[0].name().unwrap(), content=desc)
   inspect(
     feats[1].tag().to_string(),
-    content=tag_from_str_lossy("kern").to_string(),
+    content=@moon_swash.tag_from_str_lossy("kern").to_string(),
   )
   inspect(
     match feats[1].action() {
@@ -241,17 +244,17 @@ test "FontRef::writing_systems enumerates AAT writing system (DFLT)" {
   let sfnt = feature_test_build_sfnt(
     Array::from_fixed_array([(0x6D6F7278, morx)]),
   )
-  let font = FontRef::from_offset(sfnt, 0).unwrap()
+  let font = @moon_swash.FontRef::from_offset(sfnt, 0).unwrap()
   let wss = font.writing_systems().iter().to_array()
   inspect(wss.length(), content="1")
   let ws = wss[0]
   inspect(
     ws.script_tag().to_string(),
-    content=tag_from_str_lossy("DFLT").to_string(),
+    content=@moon_swash.tag_from_str_lossy("DFLT").to_string(),
   )
   inspect(
     ws.language_tag().to_string(),
-    content=tag_from_str_lossy("DFLT").to_string(),
+    content=@moon_swash.tag_from_str_lossy("DFLT").to_string(),
   )
   inspect(
     match ws.language() {

@@ -90,15 +90,15 @@ fn mk_min_font() -> Bytes {
 test "RawFont.table_range/table_data reads the table directory" {
   let data = mk_min_font()
   let font = TestFont::{ data, offset: 0, }
-  let head_tag : RawTag = 0x68656164 // "head"
-  debug_inspect(table_range(font, head_tag), content="Some((32, 36))")
-  let view_opt = table_data(font, head_tag)
+  let head_tag : @internal.RawTag = 0x68656164 // "head"
+  debug_inspect(@internal.table_range(font, head_tag), content="Some((32, 36))")
+  let view_opt = @internal.table_data(font, head_tag)
   if view_opt is Some(view) {
     inspect(view.length(), content="4")
-    inspect(view[0], content="b'\\xDE'")
-    inspect(view[1], content="b'\\xAD'")
-    inspect(view[2], content="b'\\xBE'")
-    inspect(view[3], content="b'\\xEF'")
+    assert_eq(view[0], b'\xDE')
+    assert_eq(view[1], b'\xAD')
+    assert_eq(view[2], b'\xBE')
+    assert_eq(view[3], b'\xEF')
   } else {
     fail("expected Some(view)")
   }

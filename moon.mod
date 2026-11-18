@@ -3,9 +3,9 @@ name = "Milky2018/moon_swash"
 version = "0.1.10"
 
 import {
-  "Milky2018/moon_zeno@0.1.3",
-  "Milky2018/moon_yazi@0.1.3",
-  "Milky2018/moon_skrifa@0.1.8",
+  "Milky2018/moon_zeno@0.1.5",
+  "Milky2018/moon_yazi@0.1.4",
+  "Milky2018/moon_skrifa@0.2.0",
 }
 
 readme = "README.mbt.md"

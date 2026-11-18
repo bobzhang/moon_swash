@@ -7,9 +7,15 @@ on:
       - main
       - master
   workflow_dispatch:
+  schedule:
+    - cron: "30 2 * * 5"
 
 jobs:
   check-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        version: [latest, pre-release]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -21,7 +27,7 @@ jobs:
       - name: Set up MoonBit
         run: |
           set -eux
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s -- "${{ matrix.version }}"
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
 
       - name: Print tool versions
@@ -33,18 +39,12 @@ jobs:
       - name: Verify generated files and formatting are up-to-date
         run: |
           set -euo pipefail
-          moon info
+          moon info --target all
           moon fmt
           git diff --exit-code
 
       - name: Lint and type-check (no warnings)
-        run: |
-          set -euo pipefail
-          moon check 2>&1 | tee /tmp/moon-check.log
-          if grep -n "^Warning:" /tmp/moon-check.log; then
-            echo "moon check emitted warnings; treat as failure"
-            exit 1
-          fi
+        run: moon check --target all --deny-warn
 
       - name: Run tests
-        run: moon test
+        run: moon test --target all

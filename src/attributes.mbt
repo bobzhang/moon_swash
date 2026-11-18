@@ -495,7 +495,7 @@ pub fn Weight::parse(s0 : String) -> Weight? {
   } else if s == "bold" {
     Some(Weight::bold())
   } else {
-    try @string.parse_int(s, base=10) catch {
+    try @string.parse_int(s, radix=10) catch {
       _ => None
     } noraise {
       v => Some(Weight::{ value: v.max(1).min(1000).to_uint16(), })
@@ -744,7 +744,7 @@ pub fn Synthesis::any(self : Synthesis) -> Bool {
 
 ///|
 pub fn Synthesis::variations(self : Synthesis) -> ArrayView[VariationSetting] {
-  self.vars.op_as_view()
+  self.vars[:]
 }
 
 ///|

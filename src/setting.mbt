@@ -178,7 +178,7 @@ pub fn Setting::parse_feature_list(s : String) -> Iter[FeatureSetting] {
           "" | "on" => (true, 1)
           "off" => (true, 0)
           _ =>
-            try @string.parse_int(value_sv, base=10) catch {
+            try @string.parse_int(value_sv, radix=10) catch {
               _ => (false, 0)
             } noraise {
               v => if v < 0 || v > 0xFFFF { (false, 0) } else { (true, v) }

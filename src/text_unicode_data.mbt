@@ -2950,7 +2950,7 @@ let record_index2 : ReadOnlyArray[UInt32] = [
 ]
 
 ///|
-let records : ReadOnlyArray[Record] = [
+let records_chunk0 : ReadOnlyArray[Record] = [
   r(
     32,
     C::Control,
@@ -12751,6 +12751,10 @@ let records : ReadOnlyArray[Record] = [
     Uc::B,
     Mc::O,
   ),
+]
+
+///|
+let records_chunk1 : ReadOnlyArray[Record] = [
   r(
     64,
     C::DecimalNumber,
@@ -22551,6 +22555,10 @@ let records : ReadOnlyArray[Record] = [
     Uc::CMBlw,
     Mc::O,
   ),
+]
+
+///|
+let records_chunk2 : ReadOnlyArray[Record] = [
   r(
     64,
     C::NonspacingMark,
@@ -31442,6 +31450,14 @@ let records : ReadOnlyArray[Record] = [
     Mc::O,
   ),
 ]
+
+///|
+let records : ReadOnlyArray[Record] = ReadOnlyArray::from_iter(
+  records_chunk0
+  .iter()
+  .concat(records_chunk1.iter())
+  .concat(records_chunk2.iter()),
+)
 
 ///|
 let compose0 : ReadOnlyArray[(UInt32, UInt32, UInt32)] = [
