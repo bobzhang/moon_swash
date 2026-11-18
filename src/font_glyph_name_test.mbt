@@ -48,7 +48,7 @@ fn set_u32_be(buf : Array[Byte], off : Int32, v : UInt32) -> Unit {
 
 ///|
 fn build_sfnt_1_table(tag : UInt32, data : Bytes) -> Bytes {
-  let out : Array[Byte] = Array::new()
+  let out : Array[Byte] = Array()
   // sfnt version 1.0
   push_u32_be(out, 0x00010000)
   // numTables
@@ -67,14 +67,14 @@ fn build_sfnt_1_table(tag : UInt32, data : Bytes) -> Bytes {
   for b in data.iter() {
     out.push(b)
   }
-  Bytes::from_array(out.op_as_view())
+  Bytes::from_array(out[:])
 }
 
 ///|
 fn make_post_v1() -> Bytes {
   let buf : Array[Byte] = Array::makei(32, _ => b'\x00')
   set_u32_be(buf, 0, 0x00010000)
-  Bytes::from_array(buf.op_as_view())
+  Bytes::from_array(buf[:])
 }
 
 ///|
@@ -87,17 +87,20 @@ fn make_post_v2_foo() -> Bytes {
   buf[37] = b'f'
   buf[38] = b'o'
   buf[39] = b'o'
-  Bytes::from_array(buf.op_as_view())
+  Bytes::from_array(buf[:])
 }
 
 ///|
 test "FontRef.glyph_name uses Post table name mapping" {
   let post = make_post_v1()
   let font_data = build_sfnt_1_table(0x706F7374, post)
-  let font_opt = FontRef::from_offset(font_data, 0)
+  let font_opt = @moon_swash.FontRef::from_offset(font_data, 0)
   if font_opt is Some(font) {
     inspect(font.glyph_name(0).unwrap_or(""), content=".notdef")
-    inspect(font.table_by_tag(0x706F7374) is Some(_), content="true")
+    inspect(
+      @moon_swash.TableProvider::table_by_tag(font, 0x706F7374) is Some(_),
+      content="true",
+    )
   } else {
     fail("expected synthetic sfnt to be recognized as a font")
   }
@@ -107,7 +110,7 @@ test "FontRef.glyph_name uses Post table name mapping" {
 test "FontRef.glyph_name supports Post v2.0 custom strings" {
   let post = make_post_v2_foo()
   let font_data = build_sfnt_1_table(0x706F7374, post)
-  let font_opt = FontRef::from_offset(font_data, 0)
+  let font_opt = @moon_swash.FontRef::from_offset(font_data, 0)
   if font_opt is Some(font) {
     inspect(font.glyph_name(0).unwrap_or(""), content="foo")
   } else {

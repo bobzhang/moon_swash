@@ -56,7 +56,7 @@ fn metrics_test_build_sfnt(tables : Array[(UInt32, Bytes)]) -> Bytes {
   // Caller must provide tags in sorted order for internal table_range binary search.
   let num_tables = tables.length()
   let header_len = 12 + num_tables * 16
-  let out : Array[Byte] = Array::new()
+  let out : Array[Byte] = Array()
   metrics_test_push_u32_be(out, metrics_test_u32(0x00010000))
   metrics_test_push_u16_be(out, num_tables)
   metrics_test_push_u16_be(out, 0)
@@ -77,7 +77,7 @@ fn metrics_test_build_sfnt(tables : Array[(UInt32, Bytes)]) -> Bytes {
       out.push(b)
     }
   }
-  Bytes::from_array(out.op_as_view())
+  Bytes::from_array(out[:])
 }
 
 ///|
@@ -85,15 +85,15 @@ fn metrics_test_make_head(units_per_em : Int32, loca_fmt : Int32) -> Bytes {
   let buf : Array[Byte] = Array::makei(54, _ => b'\x00')
   metrics_test_set_u16_be(buf, 18, units_per_em)
   metrics_test_set_u16_be(buf, 50, loca_fmt)
-  Bytes::from_array(buf.op_as_view())
+  Bytes::from_array(buf[:])
 }
 
 ///|
 fn metrics_test_make_maxp(num_glyphs : Int32) -> Bytes {
-  let out : Array[Byte] = Array::new()
+  let out : Array[Byte] = Array()
   metrics_test_push_u32_be(out, metrics_test_u32(0x00010000))
   metrics_test_push_u16_be(out, num_glyphs)
-  Bytes::from_array(out.op_as_view())
+  Bytes::from_array(out[:])
 }
 
 ///|
@@ -110,7 +110,7 @@ fn metrics_test_make_hhea(
   metrics_test_set_u16_be(buf, 8, line_gap)
   metrics_test_set_u16_be(buf, 10, max_advance)
   metrics_test_set_u16_be(buf, 34, num_long)
-  Bytes::from_array(buf.op_as_view())
+  Bytes::from_array(buf[:])
 }
 
 ///|
@@ -126,10 +126,10 @@ fn metrics_test_make_vhea(
 
 ///|
 fn metrics_test_make_hmtx(advance : Int32, lsb : Int32) -> Bytes {
-  let out : Array[Byte] = Array::new()
+  let out : Array[Byte] = Array()
   metrics_test_push_u16_be(out, advance)
   metrics_test_push_u16_be(out, lsb)
-  Bytes::from_array(out.op_as_view())
+  Bytes::from_array(out[:])
 }
 
 ///|
@@ -151,7 +151,7 @@ fn metrics_test_make_post(
     12,
     metrics_test_u32(if fixed_pitch { 1 } else { 0 }),
   )
-  Bytes::from_array(buf.op_as_view())
+  Bytes::from_array(buf[:])
 }
 
 ///|
@@ -178,13 +178,13 @@ fn metrics_test_make_os2_typo(
   metrics_test_set_u16_be(buf, 72, typo_gap)
   metrics_test_set_u16_be(buf, 86, x_height)
   metrics_test_set_u16_be(buf, 88, cap_height)
-  Bytes::from_array(buf.op_as_view())
+  Bytes::from_array(buf[:])
 }
 
 ///|
 fn metrics_test_make_hvar_delta_50() -> Bytes {
   // Same minimal HVAR layout as moon_skrifa tests: +50 deltas when coord == 1.0.
-  let out : Array[Byte] = Array::new()
+  let out : Array[Byte] = Array()
   // version 1.0
   metrics_test_push_u16_be(out, 1)
   metrics_test_push_u16_be(out, 0)
@@ -222,13 +222,13 @@ fn metrics_test_make_hvar_delta_50() -> Bytes {
   metrics_test_push_u16_be(out, 0x0017)
   metrics_test_push_u16_be(out, 1)
   metrics_test_push_u16_be(out, 0)
-  Bytes::from_array(out.op_as_view())
+  Bytes::from_array(out[:])
 }
 
 ///|
 fn metrics_test_make_mvar_hasc_delta_10() -> Bytes {
   // MVAR header: version(1.0), reserved, valueRecordSize=8, valueRecordCount=1, storeOffset=20
-  let out : Array[Byte] = Array::new()
+  let out : Array[Byte] = Array()
   metrics_test_push_u32_be(out, metrics_test_u32(0x00010000))
   metrics_test_push_u16_be(out, 0) // reserved
   metrics_test_push_u16_be(out, 8) // valueRecordSize
@@ -258,7 +258,7 @@ fn metrics_test_make_mvar_hasc_delta_10() -> Bytes {
   metrics_test_push_u16_be(out, 1) // regionIndexCount
   metrics_test_push_u16_be(out, 0) // regionIndexes[0]
   metrics_test_push_u16_be(out, 10) // deltaSets[0][0]
-  Bytes::from_array(out.op_as_view())
+  Bytes::from_array(out[:])
 }
 
 ///|
@@ -266,14 +266,14 @@ fn metrics_test_make_vorg(
   default_origin : Int32,
   glyph0_origin : Int32,
 ) -> Bytes {
-  let out : Array[Byte] = Array::new()
+  let out : Array[Byte] = Array()
   metrics_test_push_u16_be(out, 1) // major
   metrics_test_push_u16_be(out, 0) // minor
   metrics_test_push_u16_be(out, default_origin) // defaultVertOriginY (i16)
   metrics_test_push_u16_be(out, 1) // numVertOriginYMetrics
   metrics_test_push_u16_be(out, 0) // glyphIndex
   metrics_test_push_u16_be(out, glyph0_origin) // vertOriginY (i16)
-  Bytes::from_array(out.op_as_view())
+  Bytes::from_array(out[:])
 }
 
 ///|
@@ -291,9 +291,9 @@ test "MetricsProxy materialize_metrics reads OS/2/post and synthesizes vertical 
       (@internal.POST, metrics_test_make_post(-100, 20, true)),
     ]),
   )
-  let font = FontRef::from_offset(sfnt, 0).unwrap()
-  let proxy = MetricsProxy::from_font(font)
-  let m = proxy.materialize_metrics(font, ([] : Array[Int32]).op_as_view())
+  let font = @moon_swash.FontRef::from_offset(sfnt, 0).unwrap()
+  let proxy = @moon_swash.MetricsProxy::from_font(font)
+  let m = proxy.materialize_metrics(font, ([] : Array[Int32])[:])
   inspect(m.units_per_em, content="1000")
   inspect(m.glyph_count, content="2")
   inspect(m.is_monospace, content="true")
@@ -319,12 +319,12 @@ test "GlyphMetrics applies HVAR deltas when coords are non-zero" {
       (@internal.MAXP, metrics_test_make_maxp(1)),
     ]),
   )
-  let font = FontRef::from_offset(sfnt, 0).unwrap()
-  let gm0 = font.glyph_metrics(([] : Array[Int32]).op_as_view())
+  let font = @moon_swash.FontRef::from_offset(sfnt, 0).unwrap()
+  let gm0 = font.glyph_metrics(([] : Array[Int32])[:])
   inspect(gm0.advance_width((0).to_uint16()).to_int(), content="500")
   inspect(gm0.lsb((0).to_uint16()).to_int(), content="10")
   let coords = Array::from_fixed_array([16384])
-  let gm1 = font.glyph_metrics(coords.op_as_view())
+  let gm1 = font.glyph_metrics(coords[:])
   inspect(gm1.advance_width((0).to_uint16()).to_int(), content="550")
   inspect(gm1.lsb((0).to_uint16()).to_int(), content="60")
 }
@@ -341,10 +341,10 @@ test "MetricsProxy applies MVAR deltas to ascent" {
       (@internal.MAXP, metrics_test_make_maxp(1)),
     ]),
   )
-  let font = FontRef::from_offset(sfnt, 0).unwrap()
-  let proxy = MetricsProxy::from_font(font)
+  let font = @moon_swash.FontRef::from_offset(sfnt, 0).unwrap()
+  let proxy = @moon_swash.MetricsProxy::from_font(font)
   let coords = Array::from_fixed_array([16384])
-  let m = proxy.materialize_metrics(font, coords.op_as_view())
+  let m = proxy.materialize_metrics(font, coords[:])
   inspect(m.ascent.to_int(), content="810")
 }
 
@@ -361,8 +361,8 @@ test "GlyphMetrics uses VMTX+VORG for vertical metrics when present" {
       (@internal.VMTX, metrics_test_make_vmtx(800, 20)),
     ]),
   )
-  let font = FontRef::from_offset(sfnt, 0).unwrap()
-  let gm = font.glyph_metrics(([] : Array[Int32]).op_as_view())
+  let font = @moon_swash.FontRef::from_offset(sfnt, 0).unwrap()
+  let gm = font.glyph_metrics(([] : Array[Int32])[:])
   inspect(gm.has_vertical_metrics(), content="true")
   inspect(gm.advance_height((0).to_uint16()).to_int(), content="800")
   inspect(gm.tsb((0).to_uint16()).to_int(), content="20")

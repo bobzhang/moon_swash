@@ -39,7 +39,7 @@ fn strike_test_build_sfnt(tables : Array[(UInt32, Bytes)]) -> Bytes {
   // Caller must provide tags in sorted order for internal table_range binary search.
   let num_tables = tables.length()
   let header_len = 12 + num_tables * 16
-  let out : Array[Byte] = Array::new()
+  let out : Array[Byte] = Array()
   strike_test_push_u32_be(out, strike_test_u32(0x00010000))
   strike_test_push_u16_be(out, num_tables)
   strike_test_push_u16_be(out, 0)
@@ -60,20 +60,20 @@ fn strike_test_build_sfnt(tables : Array[(UInt32, Bytes)]) -> Bytes {
       out.push(b)
     }
   }
-  Bytes::from_array(out.op_as_view())
+  Bytes::from_array(out[:])
 }
 
 ///|
 fn strike_test_build_maxp(num_glyphs : Int32) -> Bytes {
-  let out : Array[Byte] = Array::new()
+  let out : Array[Byte] = Array()
   strike_test_push_u32_be(out, strike_test_u32(0x00010000))
   strike_test_push_u16_be(out, num_glyphs)
-  Bytes::from_array(out.op_as_view())
+  Bytes::from_array(out[:])
 }
 
 ///|
 fn strike_test_build_sbix_two_strikes() -> Bytes {
-  let out : Array[Byte] = Array::new()
+  let out : Array[Byte] = Array()
   // sbix header
   strike_test_push_u16_be(out, 1) // version
   strike_test_push_u16_be(out, 0) // flags
@@ -99,7 +99,7 @@ fn strike_test_build_sbix_two_strikes() -> Bytes {
   strike_test_push_u16_be(out, 3)
   strike_test_push_u16_be(out, 4)
   strike_test_push_u32_be(out, 0x706E6720) // "png "
-  Bytes::from_array(out.op_as_view())
+  Bytes::from_array(out[:])
 }
 
 ///|
@@ -110,7 +110,7 @@ fn strike_test_build_cblc_index1(
   bit_depth : Int32,
   major : Int32,
 ) -> Bytes {
-  let out : Array[Byte] = Array::new()
+  let out : Array[Byte] = Array()
   // major/minor
   strike_test_push_u16_be(out, major)
   strike_test_push_u16_be(out, 0)
@@ -140,12 +140,12 @@ fn strike_test_build_cblc_index1(
   strike_test_push_u32_be(out, strike_test_u32(4))
   strike_test_push_u32_be(out, strike_test_u32(0))
   strike_test_push_u32_be(out, strike_test_u32(0))
-  Bytes::from_array(out.op_as_view())
+  Bytes::from_array(out[:])
 }
 
 ///|
 fn strike_test_dummy_table(len : Int32) -> Bytes {
-  Bytes::from_array(Array::makei(len, _ => b'\x00').op_as_view())
+  Bytes::from_array(Array::makei(len, _ => b'\x00')[:])
 }
 
 ///|
@@ -160,7 +160,7 @@ test "FontRef::alpha_strikes parses EBLC strike metadata + coverage" {
       ], // "EBLC"
     ),
   )
-  let font = FontRef::from_offset(sfnt, 0).unwrap()
+  let font = @moon_swash.FontRef::from_offset(sfnt, 0).unwrap()
   let strikes = font.alpha_strikes()
   inspect(strikes.len(), content="1")
   let s0 = strikes.iter().next().unwrap()
@@ -178,7 +178,7 @@ test "FontRef::color_strikes parses sbix strikes + find helpers" {
   let sfnt = strike_test_build_sfnt(
     Array::from_fixed_array([(0x6D617870, maxp), (0x73626978, sbix)]),
   )
-  let font = FontRef::from_offset(sfnt, 0).unwrap()
+  let font = @moon_swash.FontRef::from_offset(sfnt, 0).unwrap()
   let strikes = font.color_strikes()
   inspect(strikes.len(), content="2")
   let exact = strikes
@@ -205,8 +205,8 @@ test "BitmapStrikesProxy prefers CBLC/CBDT when sbix missing" {
       ], // "CBLC"
     ),
   )
-  let font = FontRef::from_offset(sfnt, 0).unwrap()
-  let proxy = BitmapStrikesProxy::from_font(font)
+  let font = @moon_swash.FontRef::from_offset(sfnt, 0).unwrap()
+  let proxy = @moon_swash.BitmapStrikesProxy::from_font(font)
   inspect(proxy.has_alpha(), content="false")
   inspect(proxy.has_color(), content="true")
   let strikes = proxy.materialize_color(font)

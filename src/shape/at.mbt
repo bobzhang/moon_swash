@@ -1008,7 +1008,7 @@ fn ApplyContext::collect_sequence(self : ApplyContext, len : Int32) -> Bool {
 }
 
 ///|
-fn ApplyContext::extend(self : ApplyContext, count : Int) -> Unit {
+fn ApplyContext::extend_range(self : ApplyContext, count : Int32) -> Unit {
   self.end = self.end + count
   self.s.end = self.s.end + count
   self.s.cur = self.s.cur + count
@@ -1209,7 +1209,7 @@ fn ApplyContext::apply_subtable(
       }
       self.buf.substitute_multiple(cur, self.storage.ids[0:seqlen])
       self.update_glyphs(cur, cur + seqlen)
-      self.extend(seqlen - 1)
+      self.extend_range(seqlen - 1)
       Some(true)
     }
     @internal.SubtableKind::AltSub1 => {

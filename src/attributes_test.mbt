@@ -51,7 +51,7 @@ fn attributes_test_build_sfnt(tables : Array[(UInt32, Bytes)]) -> Bytes {
   // Caller must provide tags in sorted order for internal table_range binary search.
   let num_tables = tables.length()
   let header_len = 12 + num_tables * 16
-  let out : Array[Byte] = Array::new()
+  let out : Array[Byte] = Array()
   attributes_test_push_u32_be(out, attributes_test_u32(0x00010000))
   attributes_test_push_u16_be(out, num_tables)
   attributes_test_push_u16_be(out, 0)
@@ -72,7 +72,7 @@ fn attributes_test_build_sfnt(tables : Array[(UInt32, Bytes)]) -> Bytes {
       out.push(b)
     }
   }
-  Bytes::from_array(out.op_as_view())
+  Bytes::from_array(out[:])
 }
 
 ///|
@@ -90,7 +90,7 @@ fn attributes_test_make_os2(
   attributes_test_set_u16_be(buf, 6, width_class)
   // selection flags
   attributes_test_set_u16_be(buf, 62, selection)
-  Bytes::from_array(buf.op_as_view())
+  Bytes::from_array(buf[:])
 }
 
 ///|
@@ -100,40 +100,40 @@ test "FontRef::attributes from OS/2 italic/oblique flags" {
       (@internal.OS_2, attributes_test_make_os2(700, 5, 0x0001)),
     ]),
   )
-  let f0 = FontRef::from_offset(sfnt_italic, 0).unwrap()
+  let f0 = @moon_swash.FontRef::from_offset(sfnt_italic, 0).unwrap()
   let a0 = f0.attributes()
-  inspect(a0.weight() == Weight::bold(), content="true")
-  inspect(a0.stretch() == Stretch::normal(), content="true")
-  inspect(a0.style() == Style::Italic, content="true")
+  inspect(a0.weight() == @moon_swash.Weight::bold(), content="true")
+  inspect(a0.stretch() == @moon_swash.Stretch::normal(), content="true")
+  inspect(a0.style() == @moon_swash.Style::Italic, content="true")
   let sfnt_oblique = attributes_test_build_sfnt(
     Array::from_fixed_array([
       (@internal.OS_2, attributes_test_make_os2(400, 5, 0x0200)),
     ]),
   )
-  let f1 = FontRef::from_offset(sfnt_oblique, 0).unwrap()
+  let f1 = @moon_swash.FontRef::from_offset(sfnt_oblique, 0).unwrap()
   let a1 = f1.attributes()
-  inspect(a1.style() is Style::Oblique(_), content="true")
+  inspect(a1.style() is @moon_swash.Style::Oblique(_), content="true")
 }
 
 ///|
 test "Attributes::synthesize embolden and skew fallbacks" {
-  let base = Attributes::Attributes(
-    Stretch::normal(),
-    Weight::normal(),
-    Style::Normal,
+  let base = @moon_swash.Attributes::Attributes(
+    @moon_swash.Stretch::normal(),
+    @moon_swash.Weight::normal(),
+    @moon_swash.Style::Normal,
   )
-  let req_bold = Attributes::Attributes(
-    Stretch::normal(),
-    Weight::bold(),
-    Style::Normal,
+  let req_bold = @moon_swash.Attributes::Attributes(
+    @moon_swash.Stretch::normal(),
+    @moon_swash.Weight::bold(),
+    @moon_swash.Style::Normal,
   )
   let s0 = base.synthesize(req_bold)
   inspect(s0.embolden(), content="true")
   inspect(s0.variations().length(), content="0")
-  let req_italic = Attributes::Attributes(
-    Stretch::normal(),
-    Weight::normal(),
-    Style::Italic,
+  let req_italic = @moon_swash.Attributes::Attributes(
+    @moon_swash.Stretch::normal(),
+    @moon_swash.Weight::normal(),
+    @moon_swash.Style::Italic,
   )
   let s1 = base.synthesize(req_italic)
   inspect(s1.embolden(), content="false")

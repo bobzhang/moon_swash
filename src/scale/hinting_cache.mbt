@@ -98,7 +98,7 @@ fn find_hinting_entry(
     if e.id0 == id0 &&
       e.id1 == id1 &&
       size_eq(e.size, size) &&
-      coords_eq(e.coords.op_as_view(), coords) {
+      coords_eq(e.coords[:], coords) {
       return Some((i, true))
     }
     if e.serial < found_serial {
@@ -131,18 +131,22 @@ fn HintingCache::get(
     _ => self.cff_entries
   }
   let coords = effective_coords(loc)
-  match find_hinting_entry(entries, id0, id1, size, coords.op_as_view()) {
+  match find_hinting_entry(entries, id0, id1, size, coords[:]) {
     None => None
     Some((ix, is_current)) => {
       self.serial = self.serial + 1
       if ix == entries.length() {
         match
-          @skrifa_outline.HintingInstance::create(
-            outlines,
-            size,
-            loc,
-            hinting_options(),
-          ) {
+          (Ok(
+            @skrifa_outline.HintingInstance::create(
+              outlines,
+              size,
+              loc,
+              hinting_options(),
+            ),
+          ) catch {
+            e => Err(e)
+          }) {
           Err(_) => None
           Ok(h) => {
             entries.push(HintingEntry::{
@@ -172,7 +176,10 @@ fn HintingCache::get(
           // Reuse the existing instance memory by reconfiguring it in-place.
           let e2 = entries[ix]
           let inst = e2.instance
-          match inst.reconfigure(outlines, size, loc, hinting_options()) {
+          match
+            (Ok(inst.reconfigure(outlines, size, loc, hinting_options())) catch {
+              e => Err(e)
+            }) {
             Err(_) => None
             Ok(_) => {
               entries[ix] = HintingEntry::{

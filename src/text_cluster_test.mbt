@@ -13,11 +13,19 @@
 // limitations under the License.
 
 ///|
-fn tokens_from_string(s : String) -> Array[Token] {
-  let tokens : Array[Token] = []
+fn tokens_from_string(s : String) -> Array[@moon_swash.Token] {
+  let tokens : Array[@moon_swash.Token] = []
   let mut offset = 0U
   for ch in s {
-    tokens.push(Token::Token(ch, offset, 1U, CharInfo::from_char(ch), 0U))
+    tokens.push(
+      @moon_swash.Token::Token(
+        ch,
+        offset,
+        1U,
+        @moon_swash.CharInfo::from_char(ch),
+        0U,
+      ),
+    )
     offset = offset + 1U
   }
   tokens
@@ -26,27 +34,30 @@ fn tokens_from_string(s : String) -> Array[Token] {
 ///|
 test "text cluster: CRLF clusters as newline" {
   let tokens = tokens_from_string("\r\n")
-  let parser = Parser::Parser(Script::Latin, tokens.iter())
-  let cluster = CharCluster::CharCluster()
+  let parser = @moon_swash.Parser::Parser(
+    @moon_swash.Script::Latin,
+    tokens.iter(),
+  )
+  let cluster = @moon_swash.CharCluster::CharCluster()
   inspect(parser.next(cluster), content="true")
   inspect(cluster.chars().length(), content="2")
   inspect(
     match cluster.info().whitespace() {
-      Whitespace::Newline => true
+      @moon_swash.Whitespace::Newline => true
       _ => false
     },
     content="true",
   )
   inspect(
     match cluster.chars()[0].shape_class() {
-      ShapeClass::Control => true
+      @moon_swash.ShapeClass::Control => true
       _ => false
     },
     content="true",
   )
   inspect(
     match cluster.chars()[1].shape_class() {
-      ShapeClass::Control => true
+      @moon_swash.ShapeClass::Control => true
       _ => false
     },
     content="true",
@@ -60,15 +71,18 @@ test "text cluster: CRLF clusters as newline" {
 test "text cluster: emoji VS16 excluded from shaping chars but included in range" {
   // U+263A WHITE SMILING FACE + U+FE0F VARIATION SELECTOR-16
   let tokens = tokens_from_string("\u{263A}\u{FE0F}")
-  let parser = Parser::Parser(Script::Latin, tokens.iter())
-  let cluster = CharCluster::CharCluster()
+  let parser = @moon_swash.Parser::Parser(
+    @moon_swash.Script::Latin,
+    tokens.iter(),
+  )
+  let cluster = @moon_swash.CharCluster::CharCluster()
   inspect(parser.next(cluster), content="true")
   inspect(cluster.chars().length(), content="1")
   inspect(cluster.range().start(), content="0")
   inspect(cluster.range().end(), content="2")
   inspect(
     match cluster.info().emoji() {
-      Emoji::Color => true
+      @moon_swash.Emoji::Color => true
       _ => false
     },
     content="true",
@@ -79,8 +93,11 @@ test "text cluster: emoji VS16 excluded from shaping chars but included in range
 ///|
 test "text cluster: force-normalize prefers composed mapping" {
   let tokens = tokens_from_string("A\u{030A}")
-  let parser = Parser::Parser(Script::Latin, tokens.iter())
-  let cluster = CharCluster::CharCluster()
+  let parser = @moon_swash.Parser::Parser(
+    @moon_swash.Script::Latin,
+    tokens.iter(),
+  )
+  let cluster = @moon_swash.CharCluster::CharCluster()
   inspect(parser.next(cluster), content="true")
   inspect(
     match
@@ -91,7 +108,7 @@ test "text cluster: force-normalize prefers composed mapping" {
           (0).to_uint16()
         }
       }) {
-      Status::Complete => true
+      @moon_swash.Status::Complete => true
       _ => false
     },
     content="true",
@@ -104,14 +121,17 @@ test "text cluster: force-normalize prefers composed mapping" {
 test "text cluster: Myanmar kinzi prefix is classified" {
   // 1004 + 103A + 1039 + 1000
   let tokens = tokens_from_string("\u{1004}\u{103A}\u{1039}\u{1000}")
-  let parser = Parser::Parser(Script::Myanmar, tokens.iter())
-  let cluster = CharCluster::CharCluster()
+  let parser = @moon_swash.Parser::Parser(
+    @moon_swash.Script::Myanmar,
+    tokens.iter(),
+  )
+  let cluster = @moon_swash.CharCluster::CharCluster()
   inspect(parser.next(cluster), content="true")
   inspect(cluster.chars().length(), content="4")
   for i in 0..<3 {
     inspect(
       match cluster.chars()[i].shape_class() {
-        ShapeClass::Kinzi => true
+        @moon_swash.ShapeClass::Kinzi => true
         _ => false
       },
       content="true",
@@ -119,7 +139,7 @@ test "text cluster: Myanmar kinzi prefix is classified" {
   }
   inspect(
     match cluster.chars()[3].shape_class() {
-      ShapeClass::Base => true
+      @moon_swash.ShapeClass::Base => true
       _ => false
     },
     content="true",
