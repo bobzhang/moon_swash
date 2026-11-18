@@ -22,9 +22,9 @@
 
 ///|
 struct VariationsProxy {
-  fvar : UInt
-  avar : UInt
-  len : Int
+  fvar : UInt32
+  avar : UInt32
+  len : Int32
 }
 
 ///|
@@ -36,7 +36,7 @@ pub fn VariationsProxy::from_font(font : FontRef) -> VariationsProxy {
   }
   let avar = font.table_offset(@internal.AVAR)
   let len = table.axis_count().reinterpret_as_int()
-  VariationsProxy::{ fvar, avar, len }
+  VariationsProxy::{ fvar, avar, len, }
 }
 
 ///|
@@ -68,9 +68,9 @@ pub fn VariationsProxy::materialize(
 struct Variations {
   font : FontRef
   fvar : @internal.Fvar
-  avar : UInt
-  len : Int
-  mut pos : Int
+  avar : UInt32
+  len : Int32
+  mut pos : Int32
 }
 
 ///|
@@ -81,17 +81,17 @@ fn Variations::from_font(font : FontRef) -> Variations {
   }
   let avar = font.table_offset(@internal.AVAR)
   let len = fvar.axis_count().reinterpret_as_int()
-  Variations::{ font, fvar, avar, len, pos: 0 }
+  Variations::{ font, fvar, avar, len, pos: 0, }
 }
 
 ///|
-fn Variations::get(self : Variations, index : Int) -> Variation? {
+fn Variations::get(self : Variations, index : Int32) -> Variation? {
   if index < 0 || index >= self.len {
     return None
   }
   match self.fvar.get_axis(index.reinterpret_as_uint()) {
     None => None
-    Some(axis) => Some(Variation::{ font: self.font, axis, avar: self.avar })
+    Some(axis) => Some(Variation::{ font: self.font, axis, avar: self.avar, })
   }
 }
 
@@ -140,7 +140,7 @@ pub fn Variations::normalized_coords(
 }
 
 ///|
-pub fn Variations::len(self : Variations) -> Int {
+pub fn Variations::len(self : Variations) -> Int32 {
   self.len
 }
 
@@ -164,11 +164,11 @@ pub fn Variations::iter(self : Variations) -> Iter[Variation] {
 struct Variation {
   font : FontRef
   axis : @internal.VarAxis
-  avar : UInt
+  avar : UInt32
 }
 
 ///|
-pub fn Variation::index(self : Variation) -> Int {
+pub fn Variation::index(self : Variation) -> Int32 {
   self.axis.index.reinterpret_as_int()
 }
 
@@ -227,9 +227,9 @@ pub fn Variation::normalize(
 struct Instances {
   font : FontRef
   fvar : @internal.Fvar
-  avar : UInt
-  len : Int
-  mut pos : Int
+  avar : UInt32
+  len : Int32
+  mut pos : Int32
 }
 
 ///|
@@ -240,11 +240,11 @@ fn Instances::from_font(font : FontRef) -> Instances {
   }
   let avar = font.table_offset(@internal.AVAR)
   let len = fvar.instance_count().reinterpret_as_int()
-  Instances::{ font, fvar, avar, len, pos: 0 }
+  Instances::{ font, fvar, avar, len, pos: 0, }
 }
 
 ///|
-fn Instances::get(self : Instances, index : Int) -> Instance? {
+fn Instances::get(self : Instances, index : Int32) -> Instance? {
   if index < 0 || index >= self.len {
     return None
   }
@@ -273,7 +273,7 @@ fn Instances::get(self : Instances, index : Int) -> Instance? {
         }
         coords.push(axis.normalized_coord(value, avar))
       }
-      Some(Instance::{ parent: self, inner, values, coords })
+      Some(Instance::{ parent: self, inner, values, coords, })
     }
   }
 }
@@ -339,7 +339,7 @@ struct Instance {
 }
 
 ///|
-pub fn Instance::index(self : Instance) -> Int {
+pub fn Instance::index(self : Instance) -> Int32 {
   self.inner.index.reinterpret_as_int()
 }
 

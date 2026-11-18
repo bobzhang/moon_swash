@@ -20,10 +20,10 @@
 ///|
 priv struct AtScript {
   data : Bytes
-  gsub : UInt
-  gpos : UInt
-  gsub_offset : UInt
-  gpos_offset : UInt
+  gsub : UInt32
+  gpos : UInt32
+  gsub_offset : UInt32
+  gpos_offset : UInt32
   tag : Tag
 }
 
@@ -41,15 +41,19 @@ fn AtScript::languages(self : AtScript) -> AtLanguages {
 ///|
 priv struct AtScripts {
   data : Bytes
-  gsub : UInt
-  gpos : UInt
+  gsub : UInt32
+  gpos : UInt32
 }
 
 ///|
 
 ///|
-fn AtScripts::AtScripts(data : Bytes, gsub : UInt, gpos : UInt) -> AtScripts {
-  AtScripts::{ data, gsub, gpos }
+fn AtScripts::AtScripts(
+  data : Bytes,
+  gsub : UInt32,
+  gpos : UInt32,
+) -> AtScripts {
+  AtScripts::{ data, gsub, gpos, }
 }
 
 ///|
@@ -118,20 +122,20 @@ fn AtScripts::iter(self : AtScripts) -> Iter[AtScript] {
 ///|
 priv struct AtLangSys {
   data : Bytes
-  gsub : UInt
-  gpos : UInt
-  gsub_offset : UInt
-  gpos_offset : UInt
+  gsub : UInt32
+  gpos : UInt32
+  gsub_offset : UInt32
+  gpos_offset : UInt32
   tag : Tag
 }
 
 ///|
 priv struct AtLanguages {
   data : Bytes
-  gsub : UInt
-  gpos : UInt
-  gsub_script : UInt
-  gpos_script : UInt
+  gsub : UInt32
+  gpos : UInt32
+  gsub_script : UInt32
+  gpos_script : UInt32
 }
 
 ///|
@@ -139,12 +143,12 @@ priv struct AtLanguages {
 ///|
 fn AtLanguages::AtLanguages(
   data : Bytes,
-  gsub : UInt,
-  gpos : UInt,
-  gsub_script : UInt,
-  gpos_script : UInt,
+  gsub : UInt32,
+  gpos : UInt32,
+  gsub_script : UInt32,
+  gpos_script : UInt32,
 ) -> AtLanguages {
-  AtLanguages::{ data, gsub, gpos, gsub_script, gpos_script }
+  AtLanguages::{ data, gsub, gpos, gsub_script, gpos_script, }
 }
 
 ///|
@@ -275,7 +279,7 @@ fn AtWritingSystems::iter(self : AtWritingSystems) -> Iter[AtWritingSystem] {
       }
       match langs.next() {
         None => has_langs = false
-        Some(lang) => return Some(AtWritingSystem::{ lang, script_tag })
+        Some(lang) => return Some(AtWritingSystem::{ lang, script_tag, })
       }
     }
     None
@@ -307,7 +311,7 @@ fn AtFeatures::iter(self : AtFeatures) -> Iter[AtFeature] {
   let gpos = self.lang.gpos
   let gsub_language = self.lang.gsub_offset
   let gpos_language = self.lang.gpos_offset
-  let mut stage : Int = 0
+  let mut stage : Int32 = 0
   let mut len = @internal.language_feature_count(data, gsub_language).to_int()
   let mut cur = 0
   let mut done = false
@@ -327,7 +331,7 @@ fn AtFeatures::iter(self : AtFeatures) -> Iter[AtFeature] {
             match @internal.feature_at(data, table, feature_index) {
               None => ()
               Some((tag, _)) =>
-                return Some(AtFeature::{ stage: stage.to_byte(), tag })
+                return Some(AtFeature::{ stage: stage.to_byte(), tag, })
             }
         }
       } else if stage == 0 {
@@ -346,11 +350,11 @@ fn AtFeatures::iter(self : AtFeatures) -> Iter[AtFeature] {
 priv struct AtAllFeatures {
   data : Bytes
   seen : SeenFeatures
-  table : UInt
-  next_table : UInt
-  stage : Int
-  len : Int
-  cur : Int
+  table : UInt32
+  next_table : UInt32
+  stage : Int32
+  len : Int32
+  cur : Int32
 }
 
 ///|
@@ -358,8 +362,8 @@ priv struct AtAllFeatures {
 ///|
 fn AtAllFeatures::AtAllFeatures(
   data : Bytes,
-  gsub : UInt,
-  gpos : UInt,
+  gsub : UInt32,
+  gpos : UInt32,
 ) -> AtAllFeatures {
   AtAllFeatures::{
     data,
@@ -373,7 +377,7 @@ fn AtAllFeatures::AtAllFeatures(
 }
 
 ///|
-fn AtAllFeatures::iter(self : AtAllFeatures) -> Iter[(Int, Tag)] {
+fn AtAllFeatures::iter(self : AtAllFeatures) -> Iter[(Int32, Tag)] {
   let data = self.data
   let seen = self.seen
   let mut table = self.table

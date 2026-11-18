@@ -13,16 +13,16 @@
 // limitations under the License.
 
 ///|
-fn feature_test_push_u16_be(out : Array[Byte], v : Int) -> Unit {
+fn feature_test_push_u16_be(out : Array[Byte], v : Int32) -> Unit {
   let u = v.reinterpret_as_uint()
-  let mask = 255 |> Int::reinterpret_as_uint
+  let mask = 255 |> Int32::reinterpret_as_uint
   out.push(((u >> 8) & mask).to_byte())
   out.push((u & mask).to_byte())
 }
 
 ///|
-fn feature_test_push_u32_be(out : Array[Byte], v : UInt) -> Unit {
-  let mask = 255 |> Int::reinterpret_as_uint
+fn feature_test_push_u32_be(out : Array[Byte], v : UInt32) -> Unit {
+  let mask = 255 |> Int32::reinterpret_as_uint
   out.push(((v >> 24) & mask).to_byte())
   out.push(((v >> 16) & mask).to_byte())
   out.push(((v >> 8) & mask).to_byte())
@@ -30,12 +30,12 @@ fn feature_test_push_u32_be(out : Array[Byte], v : UInt) -> Unit {
 }
 
 ///|
-fn feature_test_u32(x : Int) -> UInt {
+fn feature_test_u32(x : Int32) -> UInt32 {
   x.reinterpret_as_uint()
 }
 
 ///|
-fn feature_test_build_sfnt(tables : Array[(UInt, Bytes)]) -> Bytes {
+fn feature_test_build_sfnt(tables : Array[(UInt32, Bytes)]) -> Bytes {
   // Caller must provide tags in sorted order for internal table_range binary search.
   let num_tables = tables.length()
   let header_len = 12 + num_tables * 16
@@ -64,7 +64,10 @@ fn feature_test_build_sfnt(tables : Array[(UInt, Bytes)]) -> Bytes {
 }
 
 ///|
-fn feature_test_build_gsubgpos(script_tag : UInt, feature_tag : UInt) -> Bytes {
+fn feature_test_build_gsubgpos(
+  script_tag : UInt32,
+  feature_tag : UInt32,
+) -> Bytes {
   // Minimal GSUB/GPOS table containing:
   // - ScriptList with 1 script and 2 language systems (DFLT + ENG)
   // - FeatureList with 1 feature
@@ -115,7 +118,7 @@ fn feature_test_build_gsubgpos(script_tag : UInt, feature_tag : UInt) -> Bytes {
 }
 
 ///|
-fn feature_test_build_morx(feature : Int, selector : Int) -> Bytes {
+fn feature_test_build_morx(feature : Int32, selector : Int32) -> Bytes {
   // Minimal morx table containing:
   // - chainCount = 1
   // - one chain with one feature record (feature + selector)

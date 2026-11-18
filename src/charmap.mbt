@@ -20,16 +20,16 @@
 ///|
 /// Proxy for rematerializing a character map.
 pub struct CharmapProxy {
-  offset : UInt
-  format : UInt
+  offset : UInt32
+  format : UInt32
   symbol : Bool
 }
 
 ///|
 pub fn CharmapProxy::from_font(font : FontRef) -> CharmapProxy {
   match @internal.subtable(font) {
-    None => CharmapProxy::{ offset: 0, format: 0, symbol: false }
-    Some((offset, format, symbol)) => CharmapProxy::{ offset, format, symbol }
+    None => CharmapProxy::{ offset: 0, format: 0, symbol: false, }
+    Some((offset, format, symbol)) => CharmapProxy::{ offset, format, symbol, }
   }
 }
 
@@ -40,7 +40,7 @@ pub fn CharmapProxy::materialize(
   self : CharmapProxy,
   font : FontRef,
 ) -> Charmap {
-  Charmap::{ data: font.data(), proxy: self }
+  Charmap::{ data: font.data(), proxy: self, }
 }
 
 ///|
@@ -53,7 +53,7 @@ pub struct Charmap {
 ///|
 pub fn Charmap::from_font(font : FontRef) -> Charmap {
   let proxy = CharmapProxy::from_font(font)
-  Charmap::{ data: font.data(), proxy }
+  Charmap::{ data: font.data(), proxy, }
 }
 
 ///|
@@ -62,7 +62,7 @@ pub fn Charmap::proxy(self : Charmap) -> CharmapProxy {
 }
 
 ///|
-pub fn Charmap::map(self : Charmap, codepoint : UInt) -> GlyphId {
+pub fn Charmap::map(self : Charmap, codepoint : UInt32) -> GlyphId {
   let mut glyph_id_u = @internal.map(
     self.data,
     self.proxy.offset,
@@ -82,7 +82,10 @@ pub fn Charmap::map(self : Charmap, codepoint : UInt) -> GlyphId {
 }
 
 ///|
-pub fn Charmap::enumerate(self : Charmap, f : (UInt, GlyphId) -> Unit) -> Unit {
+pub fn Charmap::enumerate(
+  self : Charmap,
+  f : (UInt32, GlyphId) -> Unit,
+) -> Unit {
   @internal.enumerate(self.data, self.proxy.offset, (cp, gid_u) => {
     f(cp, gid_u.to_uint16())
   })

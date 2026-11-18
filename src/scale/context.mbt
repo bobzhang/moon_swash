@@ -57,7 +57,7 @@ pub fn ScaleContext::ScaleContext() -> ScaleContext {
 /// Creates a new scaling context with the specified maximum number of cache entries.
 ///
 /// This mirrors the upstream API. The value is clamped to 1..=64.
-pub fn ScaleContext::with_max_entries(max_entries : Int) -> ScaleContext {
+pub fn ScaleContext::with_max_entries(max_entries : Int32) -> ScaleContext {
   let max_entries = if max_entries < 1 {
     1
   } else if max_entries > 64 {
@@ -122,7 +122,7 @@ struct ScalerBuilder {
   proxy : Ref[ScalerProxy]
   id0 : UInt64
   id1 : UInt64
-  coords : Array[Int]
+  coords : Array[Int32]
   size : Double
   hint : Bool
 }
@@ -201,7 +201,7 @@ pub fn ScalerBuilder::variations(
 ///|
 pub fn ScalerBuilder::normalized_coords(
   self : ScalerBuilder,
-  coords : ArrayView[Int],
+  coords : ArrayView[Int32],
 ) -> ScalerBuilder {
   self.coords.clear()
   for c in coords.iter() {
@@ -256,7 +256,7 @@ struct Scaler {
   outlines : @skrifa_outline.OutlineGlyphCollection?
   hinting_instance : @skrifa_outline.HintingInstance?
   proxy : Ref[ScalerProxy]
-  coords : Array[Int]
+  coords : Array[Int32]
   size : Double
   skrifa_size : @skrifa.Size
   hint : Bool
@@ -338,7 +338,7 @@ pub fn Scaler::scale_color_outline_into(
 }
 
 ///|
-fn find_font_index_by_offset(data : Bytes, offset : Int) -> UInt? {
+fn find_font_index_by_offset(data : Bytes, offset : Int32) -> UInt32? {
   match @swash.FontDataRef::from_data(data) {
     None => None
     Some(fdr) => {
@@ -693,7 +693,7 @@ fn Scaler::scale_bitmap_impl(
     Some(h) => h
   }
   if w <= 0 || h <= 0 {
-    image.placement = Placement::{ left: 0, top: 0, width: 0U, height: 0U }
+    image.placement = Placement::{ left: 0, top: 0, width: 0U, height: 0U, }
     image.source = if color {
       Source::ColorBitmap(strike)
     } else {
