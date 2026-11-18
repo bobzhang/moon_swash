@@ -14,14 +14,14 @@
 
 ///|
 /// Minimal end-to-end tests for AAT shaping paths (black-box).
-fn push_u16_be(out : Array[Byte], v : Int) -> Unit {
+fn push_u16_be(out : Array[Byte], v : Int32) -> Unit {
   let u = v.reinterpret_as_uint()
   out.push(((u >> 8) & 0xFFU).to_byte())
   out.push((u & 0xFFU).to_byte())
 }
 
 ///|
-fn push_u32_be(out : Array[Byte], v : UInt) -> Unit {
+fn push_u32_be(out : Array[Byte], v : UInt32) -> Unit {
   out.push(((v >> 24) & 0xFFU).to_byte())
   out.push(((v >> 16) & 0xFFU).to_byte())
   out.push(((v >> 8) & 0xFFU).to_byte())

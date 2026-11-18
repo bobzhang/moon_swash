@@ -20,13 +20,13 @@
 ///|
 pub struct MorxChains {
   b : BeBytes
-  offset : Int
-  len : UInt
-  cur : UInt
+  offset : Int32
+  len : UInt32
+  cur : UInt32
 }
 
 ///|
-pub fn morx_chains(data : Bytes, offset : UInt) -> MorxChains {
+pub fn morx_chains(data : Bytes, offset : UInt32) -> MorxChains {
   let view = if offset == 0U {
     aat_empty_view()
   } else {
@@ -34,16 +34,16 @@ pub fn morx_chains(data : Bytes, offset : UInt) -> MorxChains {
   }
   let b = BeBytes::from_view(view)
   let len = b.read_u32(4).unwrap_or(0)
-  MorxChains::{ b, offset: 8, len, cur: 0U }
+  MorxChains::{ b, offset: 8, len, cur: 0U, }
 }
 
 ///|
 pub struct MorxChain {
   b : BeBytes
-  offset : Int
-  default_flags : UInt
-  feature_count : UInt
-  subtable_count : UInt
+  offset : Int32
+  default_flags : UInt32
+  feature_count : UInt32
+  subtable_count : UInt32
 }
 
 ///|
@@ -86,7 +86,7 @@ pub fn MorxChains::iter(self : MorxChains) -> Iter[MorxChain] {
 }
 
 ///|
-pub fn MorxChain::default_flags(self : MorxChain) -> UInt {
+pub fn MorxChain::default_flags(self : MorxChain) -> UInt32 {
   self.default_flags
 }
 
@@ -94,8 +94,8 @@ pub fn MorxChain::default_flags(self : MorxChain) -> UInt {
 pub struct MorxFeature {
   selector : UInt16
   setting_selector : UInt16
-  enable_flags : UInt
-  disable_flags : UInt
+  enable_flags : UInt32
+  disable_flags : UInt32
 }
 
 ///|
@@ -139,24 +139,24 @@ pub fn MorxChain::features(self : MorxChain) -> Iter[MorxFeature] {
 ///|
 pub struct MorxSubtables {
   b : BeBytes
-  offset : Int
-  len : UInt
-  cur : UInt
+  offset : Int32
+  len : UInt32
+  cur : UInt32
 }
 
 ///|
 pub fn MorxChain::subtables(self : MorxChain) -> MorxSubtables {
   let offset = self.offset + 16 + 12 * self.feature_count.reinterpret_as_int()
-  MorxSubtables::{ b: self.b, offset, len: self.subtable_count, cur: 0U }
+  MorxSubtables::{ b: self.b, offset, len: self.subtable_count, cur: 0U, }
 }
 
 ///|
 pub struct MorxSubtable {
   b : BeBytes
-  offset : Int
-  kind : UInt
-  coverage : UInt
-  flags : UInt
+  offset : Int32
+  kind : UInt32
+  coverage : UInt32
+  flags : UInt32
 }
 
 ///|
@@ -185,12 +185,12 @@ pub fn MorxSubtables::iter(self : MorxSubtables) -> Iter[MorxSubtable] {
       None => return None
       Some(v) => v
     }
-    Some(MorxSubtable::{ b, offset: base, kind, coverage, flags })
+    Some(MorxSubtable::{ b, offset: base, kind, coverage, flags, })
   })
 }
 
 ///|
-pub fn MorxSubtable::flags(self : MorxSubtable) -> UInt {
+pub fn MorxSubtable::flags(self : MorxSubtable) -> UInt32 {
   self.flags
 }
 
@@ -271,26 +271,26 @@ let rearrangement_map : ReadOnlyArray[Byte] = [
 ///|
 pub struct MorxRearrangementState {
   mut state : UInt16
-  mut first : Int
-  mut last : Int
-  mut cycles : Int
+  mut first : Int32
+  mut last : Int32
+  mut cycles : Int32
 }
 
 ///|
 
 ///|
 pub fn MorxRearrangementState::MorxRearrangementState() -> MorxRearrangementState {
-  MorxRearrangementState::{ state: 0, first: 0, last: 0, cycles: 0 }
+  MorxRearrangementState::{ state: 0, first: 0, last: 0, cycles: 0, }
 }
 
 ///|
 pub struct MorxRearrange {
-  l : Int
-  r : Int
+  l : Int32
+  r : Int32
   reverse_l : Bool
   reverse_r : Bool
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
 }
 
 ///|
@@ -357,11 +357,11 @@ pub fn[T] MorxRearrange::apply(self : MorxRearrange, buffer : Array[T]) -> Unit 
 pub fn MorxRearrangement::next(
   self : MorxRearrangement,
   state : MorxRearrangementState,
-  index : Int,
+  index : Int32,
   glyph_id : UInt16,
   end_of_text : Bool,
   f : (MorxRearrange) -> Unit?,
-) -> Int? {
+) -> Int32? {
   let mark_first : UInt16 = 0x8000
   let dont_advance : UInt16 = 0x4000
   let mark_last : UInt16 = 0x2000
@@ -397,7 +397,7 @@ pub fn MorxRearrangement::next(
     }
     let reverse_l = m >> 4 == 3
     let reverse_r = (m & 0x0F) == 3
-    match f(MorxRearrange::{ l, r, reverse_l, reverse_r, start, end }) {
+    match f(MorxRearrange::{ l, r, reverse_l, reverse_r, start, end, }) {
       None => return None
       Some(_) => ()
     }
@@ -423,7 +423,10 @@ priv struct MorxContextualData {
 }
 
 ///|
-fn read_morx_contextual_data(b : BeBytes, offset : Int) -> MorxContextualData? {
+fn read_morx_contextual_data(
+  b : BeBytes,
+  offset : Int32,
+) -> MorxContextualData? {
   let mark_index = match b.read_u16(offset) {
     None => return None
     Some(v) => v.to_uint16()
@@ -432,14 +435,14 @@ fn read_morx_contextual_data(b : BeBytes, offset : Int) -> MorxContextualData? {
     None => return None
     Some(v) => v.to_uint16()
   }
-  Some(MorxContextualData::{ mark_index, current_index })
+  Some(MorxContextualData::{ mark_index, current_index, })
 }
 
 ///|
 pub struct MorxContextual {
   b : BeBytes
   state_table : ExtendedStateTable
-  table : Int
+  table : Int32
 }
 
 ///|
@@ -453,14 +456,14 @@ fn MorxContextual::parse(data : BytesView) -> MorxContextual? {
     None => return None
     Some(v) => v
   }
-  Some(MorxContextual::{ b, state_table, table })
+  Some(MorxContextual::{ b, state_table, table, })
 }
 
 ///|
 pub struct MorxContextualState {
   mut state : UInt16
   mut mark_set : Bool
-  mut mark_index : Int
+  mut mark_index : Int32
   mut mark_id : UInt16
 }
 
@@ -480,10 +483,10 @@ pub fn MorxContextualState::MorxContextualState() -> MorxContextualState {
 pub fn MorxContextual::next(
   self : MorxContextual,
   state : MorxContextualState,
-  index : Int,
+  index : Int32,
   glyph_id : UInt16,
   end_of_text : Bool,
-  f : (Int, UInt16) -> Unit?,
+  f : (Int32, UInt16) -> Unit?,
 ) -> Unit? {
   let set_mark : UInt16 = 0x8000
   let dont_advance : UInt16 = 0x4000
@@ -571,9 +574,9 @@ fn MorxContextual::lookup(
 pub struct MorxLigature {
   b : BeBytes
   state_table : ExtendedStateTable
-  action : Int
-  component : Int
-  ligature : Int
+  action : Int32
+  component : Int32
+  ligature : Int32
 }
 
 ///|
@@ -595,15 +598,15 @@ fn MorxLigature::parse(data : BytesView) -> MorxLigature? {
     None => return None
     Some(v) => v.reinterpret_as_int()
   }
-  Some(MorxLigature::{ b, state_table, action, component, ligature })
+  Some(MorxLigature::{ b, state_table, action, component, ligature, })
 }
 
 ///|
 pub struct MorxLigatureState {
   mut state : UInt16
-  indices : Array[Int]
+  indices : Array[Int32]
   glyphs : Array[UInt16]
-  mut pos : Int
+  mut pos : Int32
 }
 
 ///|
@@ -621,7 +624,7 @@ pub fn MorxLigatureState::MorxLigatureState() -> MorxLigatureState {
 ///|
 fn MorxLigatureState::push(
   self : MorxLigatureState,
-  index : Int,
+  index : Int32,
   glyph_id : UInt16,
 ) -> Unit? {
   if self.pos < 0 || self.pos >= 32 {
@@ -637,16 +640,16 @@ fn MorxLigatureState::push(
 pub fn MorxLigature::next(
   self : MorxLigature,
   state : MorxLigatureState,
-  index : Int,
+  index : Int32,
   glyph_id : UInt16,
   end_of_text : Bool,
-  f : (Int, UInt16, ArrayView[Int]) -> Unit?,
+  f : (Int32, UInt16, ArrayView[Int32]) -> Unit?,
 ) -> Unit? {
   let set_component : UInt16 = 0x8000
   let dont_advance : UInt16 = 0x4000
   let perform_action : UInt16 = 0x2000
-  let last_flag : UInt = 0x80000000
-  let store_flag : UInt = 0x40000000
+  let last_flag : UInt32 = 0x80000000
+  let store_flag : UInt32 = 0x40000000
   let class = if end_of_text {
     (0).to_uint16()
   } else {
@@ -724,19 +727,19 @@ pub fn MorxLigature::next(
 }
 
 ///|
-fn MorxLigature::action_at(self : MorxLigature, index : UInt16) -> UInt? {
+fn MorxLigature::action_at(self : MorxLigature, index : UInt16) -> UInt32? {
   self.b.read_u32(self.action + index.to_int() * 4)
 }
 
 ///|
-fn MorxLigature::component_at(self : MorxLigature, index : UInt) -> UInt16? {
+fn MorxLigature::component_at(self : MorxLigature, index : UInt32) -> UInt16? {
   self.b
   .read_u16(self.component + index.reinterpret_as_int() * 2)
   .map(x => x.to_uint16())
 }
 
 ///|
-fn MorxLigature::ligature_at(self : MorxLigature, index : UInt) -> UInt16? {
+fn MorxLigature::ligature_at(self : MorxLigature, index : UInt32) -> UInt16? {
   self.b
   .read_u16(self.ligature + index.reinterpret_as_int() * 2)
   .map(x => x.to_uint16())
@@ -753,7 +756,7 @@ pub struct MorxNonContextual {
 
 ///|
 fn MorxNonContextual::MorxNonContextual(data : BytesView) -> MorxNonContextual {
-  MorxNonContextual::{ b: BeBytes::from_view(data) }
+  MorxNonContextual::{ b: BeBytes::from_view(data), }
 }
 
 ///|
@@ -773,7 +776,7 @@ priv struct MorxInsertionData {
 }
 
 ///|
-fn read_morx_insertion_data(b : BeBytes, offset : Int) -> MorxInsertionData? {
+fn read_morx_insertion_data(b : BeBytes, offset : Int32) -> MorxInsertionData? {
   let current_index = match b.read_u16(offset) {
     None => return None
     Some(v) => v.to_uint16()
@@ -782,14 +785,14 @@ fn read_morx_insertion_data(b : BeBytes, offset : Int) -> MorxInsertionData? {
     None => return None
     Some(v) => v.to_uint16()
   }
-  Some(MorxInsertionData::{ current_index, mark_index })
+  Some(MorxInsertionData::{ current_index, mark_index, })
 }
 
 ///|
 pub struct MorxInsertion {
   b : BeBytes
   state_table : ExtendedStateTable
-  action : Int
+  action : Int32
 }
 
 ///|
@@ -803,32 +806,32 @@ fn MorxInsertion::parse(data : BytesView) -> MorxInsertion? {
     None => return None
     Some(v) => v.reinterpret_as_int()
   }
-  Some(MorxInsertion::{ b, state_table, action })
+  Some(MorxInsertion::{ b, state_table, action, })
 }
 
 ///|
 pub struct MorxInsertionState {
   mut state : UInt16
-  mut mark : Int
-  mut cycles : Int
+  mut mark : Int32
+  mut cycles : Int32
 }
 
 ///|
 
 ///|
 pub fn MorxInsertionState::MorxInsertionState() -> MorxInsertionState {
-  MorxInsertionState::{ state: 0, mark: 0, cycles: 0 }
+  MorxInsertionState::{ state: 0, mark: 0, cycles: 0, }
 }
 
 ///|
 pub fn MorxInsertion::next(
   self : MorxInsertion,
   state : MorxInsertionState,
-  index : Int,
+  index : Int32,
   glyph_id : UInt16,
   end_of_text : Bool,
-  f : (Int, ArrayView[UInt16]) -> Unit?,
-) -> Int? {
+  f : (Int32, ArrayView[UInt16]) -> Unit?,
+) -> Int32? {
   let set_mark : UInt16 = 0x8000
   let dont_advance : UInt16 = 0x4000
   let current_insert_before : UInt16 = 0x0800
@@ -923,9 +926,9 @@ fn MorxInsertion::current_glyphs(
 ///|
 pub fn morx_language_index(
   data : Bytes,
-  ltag : UInt,
+  ltag : UInt32,
   language : String,
-) -> UInt? {
+) -> UInt32? {
   let name = @utf8.encode(language)[:]
   let view = if ltag == 0U { return None } else { aat_slice_from(data, ltag) }
   let b = BeBytes::from_view(view)
@@ -958,7 +961,7 @@ pub fn morx_language_index(
 // (tag, feature, on, off) sorted by tag.
 
 ///|
-let at_to_aat : ReadOnlyArray[(UInt, Byte, Byte, Byte)] = [
+let at_to_aat : ReadOnlyArray[(UInt32, Byte, Byte, Byte)] = [
   (0x61667263U, (11).to_byte(), (1).to_byte(), (0).to_byte()), // "afrc"
   (0x63327063U, (38).to_byte(), (2).to_byte(), (0).to_byte()), // "c2pc"
   (0x63327363U, (38).to_byte(), (1).to_byte(), (0).to_byte()), // "c2sc"
@@ -1039,7 +1042,7 @@ let at_to_aat : ReadOnlyArray[(UInt, Byte, Byte, Byte)] = [
 ]
 
 ///|
-pub fn morx_feature_from_tag(tag : UInt) -> (UInt16, (UInt16, UInt16))? {
+pub fn morx_feature_from_tag(tag : UInt32) -> (UInt16, (UInt16, UInt16))? {
   let mut l = 0
   let mut h = at_to_aat.length()
   while l < h {

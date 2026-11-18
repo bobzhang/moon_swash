@@ -13,16 +13,16 @@
 // limitations under the License.
 
 ///|
-fn set_u16_be(buf : Array[Byte], off : Int, v : Int) -> Unit {
+fn set_u16_be(buf : Array[Byte], off : Int32, v : Int32) -> Unit {
   let u = v.reinterpret_as_uint()
-  let mask = 255 |> Int::reinterpret_as_uint
+  let mask = 255 |> Int32::reinterpret_as_uint
   buf[off] = ((u >> 8) & mask).to_byte()
   buf[off + 1] = (u & mask).to_byte()
 }
 
 ///|
-fn set_u32_be(buf : Array[Byte], off : Int, v : UInt) -> Unit {
-  let mask = 255 |> Int::reinterpret_as_uint
+fn set_u32_be(buf : Array[Byte], off : Int32, v : UInt32) -> Unit {
+  let mask = 255 |> Int32::reinterpret_as_uint
   buf[off] = ((v >> 24) & mask).to_byte()
   buf[off + 1] = ((v >> 16) & mask).to_byte()
   buf[off + 2] = ((v >> 8) & mask).to_byte()

@@ -13,16 +13,16 @@
 // limitations under the License.
 
 ///|
-fn strike_test_push_u16_be(out : Array[Byte], v : Int) -> Unit {
+fn strike_test_push_u16_be(out : Array[Byte], v : Int32) -> Unit {
   let u = v.reinterpret_as_uint()
-  let mask = 255 |> Int::reinterpret_as_uint
+  let mask = 255 |> Int32::reinterpret_as_uint
   out.push(((u >> 8) & mask).to_byte())
   out.push((u & mask).to_byte())
 }
 
 ///|
-fn strike_test_push_u32_be(out : Array[Byte], v : UInt) -> Unit {
-  let mask = 255 |> Int::reinterpret_as_uint
+fn strike_test_push_u32_be(out : Array[Byte], v : UInt32) -> Unit {
+  let mask = 255 |> Int32::reinterpret_as_uint
   out.push(((v >> 24) & mask).to_byte())
   out.push(((v >> 16) & mask).to_byte())
   out.push(((v >> 8) & mask).to_byte())
@@ -30,12 +30,12 @@ fn strike_test_push_u32_be(out : Array[Byte], v : UInt) -> Unit {
 }
 
 ///|
-fn strike_test_u32(x : Int) -> UInt {
+fn strike_test_u32(x : Int32) -> UInt32 {
   x.reinterpret_as_uint()
 }
 
 ///|
-fn strike_test_build_sfnt(tables : Array[(UInt, Bytes)]) -> Bytes {
+fn strike_test_build_sfnt(tables : Array[(UInt32, Bytes)]) -> Bytes {
   // Caller must provide tags in sorted order for internal table_range binary search.
   let num_tables = tables.length()
   let header_len = 12 + num_tables * 16
@@ -64,7 +64,7 @@ fn strike_test_build_sfnt(tables : Array[(UInt, Bytes)]) -> Bytes {
 }
 
 ///|
-fn strike_test_build_maxp(num_glyphs : Int) -> Bytes {
+fn strike_test_build_maxp(num_glyphs : Int32) -> Bytes {
   let out : Array[Byte] = Array::new()
   strike_test_push_u32_be(out, strike_test_u32(0x00010000))
   strike_test_push_u16_be(out, num_glyphs)
@@ -104,11 +104,11 @@ fn strike_test_build_sbix_two_strikes() -> Bytes {
 
 ///|
 fn strike_test_build_cblc_index1(
-  ppem_x : Int,
-  ppem_y : Int,
-  glyph_id : Int,
-  bit_depth : Int,
-  major : Int,
+  ppem_x : Int32,
+  ppem_y : Int32,
+  glyph_id : Int32,
+  bit_depth : Int32,
+  major : Int32,
 ) -> Bytes {
   let out : Array[Byte] = Array::new()
   // major/minor
@@ -122,14 +122,14 @@ fn strike_test_build_cblc_index1(
   strike_test_push_u32_be(out, strike_test_u32(1)) // numberOfIndexSubTables
   strike_test_push_u32_be(out, strike_test_u32(0)) // colorRef
   for _ in 0..<24 {
-    out.push(0 |> Int::to_byte)
+    out.push(0 |> Int32::to_byte)
   }
   strike_test_push_u16_be(out, glyph_id)
   strike_test_push_u16_be(out, glyph_id)
-  out.push(ppem_x |> Int::to_byte)
-  out.push(ppem_y |> Int::to_byte)
-  out.push(bit_depth |> Int::to_byte)
-  out.push(0 |> Int::to_byte)
+  out.push(ppem_x |> Int32::to_byte)
+  out.push(ppem_y |> Int32::to_byte)
+  out.push(bit_depth |> Int32::to_byte)
+  out.push(0 |> Int32::to_byte)
   // IndexSubTableArray at offset 56
   strike_test_push_u16_be(out, glyph_id)
   strike_test_push_u16_be(out, glyph_id)
@@ -144,7 +144,7 @@ fn strike_test_build_cblc_index1(
 }
 
 ///|
-fn strike_test_dummy_table(len : Int) -> Bytes {
+fn strike_test_dummy_table(len : Int32) -> Bytes {
   Bytes::from_array(Array::makei(len, _ => b'\x00').op_as_view())
 }
 

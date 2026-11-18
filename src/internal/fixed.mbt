@@ -20,74 +20,74 @@
 ///|
 /// Fixed point value in 16.16 format.
 pub struct Fixed {
-  value : Int
+  value : Int32
 }
 
 ///|
-pub fn Fixed::raw(self : Fixed) -> Int {
+pub fn Fixed::raw(self : Fixed) -> Int32 {
   self.value
 }
 
 ///|
-pub fn Fixed::from_raw(value : Int) -> Fixed {
+pub fn Fixed::from_raw(value : Int32) -> Fixed {
   Fixed::{ value, }
 }
 
 ///|
 pub fn Fixed::min_value() -> Fixed {
-  Fixed::{ value: (0x80000000 : UInt).reinterpret_as_int() }
+  Fixed::{ value: (0x80000000 : UInt32).reinterpret_as_int(), }
 }
 
 ///|
 pub fn Fixed::max_value() -> Fixed {
-  Fixed::{ value: 0x7FFFFFFF }
+  Fixed::{ value: 0x7FFFFFFF, }
 }
 
 ///|
 pub fn Fixed::epsilon() -> Fixed {
-  Fixed::{ value: 1 }
+  Fixed::{ value: 1, }
 }
 
 ///|
 pub fn Fixed::zero() -> Fixed {
-  Fixed::{ value: 0 }
+  Fixed::{ value: 0, }
 }
 
 ///|
 pub fn Fixed::one() -> Fixed {
-  Fixed::{ value: 0x10000 }
+  Fixed::{ value: 0x10000, }
 }
 
 ///|
-pub fn Fixed::from_i32(x : Int) -> Fixed {
-  Fixed::{ value: (x.reinterpret_as_uint() << 16).reinterpret_as_int() }
+pub fn Fixed::from_i32(x : Int32) -> Fixed {
+  Fixed::{ value: (x.reinterpret_as_uint() << 16).reinterpret_as_int(), }
 }
 
 ///|
 pub fn Fixed::from_f32(x : Double) -> Fixed {
-  Fixed::{ value: (x * 65536.0 + 0.5).to_int() }
+  Fixed::{ value: (x * 65536.0 + 0.5).to_int(), }
 }
 
 ///|
-pub fn Fixed::from_f2dot14(x : Int) -> Fixed {
-  Fixed::{ value: x * 4 }
+pub fn Fixed::from_f2dot14(x : Int32) -> Fixed {
+  Fixed::{ value: x * 4, }
 }
 
 ///|
 pub fn Fixed::round(self : Fixed) -> Fixed {
   let v = (self.value.reinterpret_as_uint() + 0x8000) & 0xFFFF0000
-  Fixed::{ value: v.reinterpret_as_int() }
+  Fixed::{ value: v.reinterpret_as_int(), }
 }
 
 ///|
 pub fn Fixed::floor(self : Fixed) -> Fixed {
   let v = self.value.reinterpret_as_uint() & 0xFFFF0000
-  Fixed::{ value: v.reinterpret_as_int() }
+  Fixed::{ value: v.reinterpret_as_int(), }
 }
 
 ///|
 pub fn Fixed::abs(self : Fixed) -> Fixed {
-  Fixed::{ value: self.value.abs() }
+  Fixed::{ value: self.value.abs(), }
 }
 
 ///|
@@ -110,11 +110,11 @@ pub fn Fixed::max(self : Fixed, rhs : Fixed) -> Fixed {
 
 ///|
 pub fn Fixed::fract(self : Fixed) -> Fixed {
-  Fixed::{ value: self.value - self.floor().value }
+  Fixed::{ value: self.value - self.floor().value, }
 }
 
 ///|
-pub fn Fixed::to_i32(self : Fixed) -> Int {
+pub fn Fixed::to_i32(self : Fixed) -> Int32 {
   (self.value + 0x8000) >> 16
 }
 
@@ -124,7 +124,7 @@ pub fn Fixed::to_f32(self : Fixed) -> Double {
 }
 
 ///|
-pub fn Fixed::to_f2dot14(self : Fixed) -> Int {
+pub fn Fixed::to_f2dot14(self : Fixed) -> Int32 {
   (self.value + 2) >> 2
 }
 
@@ -144,40 +144,40 @@ pub impl Sub for Fixed with fn sub(self, rhs) {
 
 ///|
 pub impl Mul for Fixed with fn mul(self, rhs) {
-  Fixed::{ value: mul(self.value, rhs.value) }
+  Fixed::{ value: mul(self.value, rhs.value), }
 }
 
 ///|
 pub impl Div for Fixed with fn div(self, rhs) {
-  Fixed::{ value: div(self.value, rhs.value) }
+  Fixed::{ value: div(self.value, rhs.value), }
 }
 
 ///|
 pub impl Neg for Fixed with fn neg(self) {
-  Fixed::{ value: -self.value }
+  Fixed::{ value: -self.value, }
 }
 
 ///|
 /// Fixed point floor (26.6).
-pub fn floor(x : Int) -> Int {
+pub fn floor(x : Int32) -> Int32 {
   x & -64
 }
 
 ///|
 /// Fixed point ceil (26.6).
-pub fn ceil(x : Int) -> Int {
+pub fn ceil(x : Int32) -> Int32 {
   floor(x + 63)
 }
 
 ///|
 /// Fixed point round (26.6).
-pub fn round(x : Int) -> Int {
+pub fn round(x : Int32) -> Int32 {
   floor(x + 32)
 }
 
 ///|
 /// Fixed point multiply (16.16).
-pub fn mul(a : Int, b : Int) -> Int {
+pub fn mul(a : Int32, b : Int32) -> Int32 {
   let ab = a.to_int64() * b.to_int64()
   let adj = 0x8000L - (if ab < 0L { 1L } else { 0L })
   ((ab + adj) >> 16).to_int()
@@ -185,7 +185,7 @@ pub fn mul(a : Int, b : Int) -> Int {
 
 ///|
 /// Fixed point divide (16.16).
-pub fn div(a0 : Int, b0 : Int) -> Int {
+pub fn div(a0 : Int32, b0 : Int32) -> Int32 {
   let mut a = a0
   let mut b = b0
   let mut s = 1
@@ -197,7 +197,7 @@ pub fn div(a0 : Int, b0 : Int) -> Int {
     b = -b
     s = -s
   }
-  let q : UInt = if b == 0 {
+  let q : UInt32 = if b == 0 {
     0x7FFFFFFF
   } else {
     let au = a.reinterpret_as_uint().to_uint64()
@@ -215,7 +215,7 @@ pub fn div(a0 : Int, b0 : Int) -> Int {
 
 ///|
 /// Fixed point multiply/divide.
-pub fn muldiv(a0 : Int, b0 : Int, c0 : Int) -> Int {
+pub fn muldiv(a0 : Int32, b0 : Int32, c0 : Int32) -> Int32 {
   let mut a = a0
   let mut b = b0
   let mut c = c0

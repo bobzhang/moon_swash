@@ -32,8 +32,8 @@ const DFLT : Tag = 0x44464C54 // "DFLT"
 ///|
 priv enum Kind {
   Empty
-  At(UInt, UInt)
-  Aat(UInt, Bool)
+  At(UInt32, UInt32)
+  Aat(UInt32, Bool)
 }
 
 ///|
@@ -77,7 +77,7 @@ fn Feature::from_tag(tag : Tag, action : Action) -> Feature {
     Option::None => Option::None
     Option::Some((_, desc)) => Option::Some(desc)
   }
-  Feature::{ tag, name, action }
+  Feature::{ tag, name, action, }
 }
 
 ///|
@@ -107,7 +107,7 @@ priv enum WritingSystemKind {
 ///|
 priv struct AatWritingSystem {
   data : Bytes
-  morx : UInt
+  morx : UInt32
   kern : Bool
 }
 
@@ -184,7 +184,7 @@ fn action_for_aat_tag(tag : Tag) -> Action {
 }
 
 ///|
-fn action_for_stage_tag(stage : Int, tag : Tag) -> Action {
+fn action_for_stage_tag(stage : Int32, tag : Tag) -> Action {
   if stage == 0 {
     Action::Substitution
   } else if tag == MARK || tag == MKMK {
@@ -209,7 +209,7 @@ pub fn Features::from_font(font : FontRef) -> Features {
           AatFeatures::AatFeatures(font.data(), morx, kern),
         ),
       }
-    Kind::Empty => Features::{ kind: FeaturesKind::Empty }
+    Kind::Empty => Features::{ kind: FeaturesKind::Empty, }
   }
 }
 
@@ -274,7 +274,7 @@ priv enum WritingSystemsKind {
 ///|
 priv struct AatWritingSystems {
   data : Bytes
-  morx : UInt
+  morx : UInt32
   kern : Bool
 }
 
@@ -289,7 +289,7 @@ fn AatWritingSystems::iter(self : AatWritingSystems) -> Iter[AatWritingSystem] {
       None
     } else {
       done = true
-      Some(AatWritingSystem::{ data, morx, kern })
+      Some(AatWritingSystem::{ data, morx, kern, })
     }
   })
 }
@@ -319,7 +319,7 @@ pub fn WritingSystems::from_font(font : FontRef) -> WritingSystems {
           kern,
         }),
       }
-    Kind::Empty => WritingSystems::{ kind: WritingSystemsKind::Empty }
+    Kind::Empty => WritingSystems::{ kind: WritingSystemsKind::Empty, }
   }
 }
 
