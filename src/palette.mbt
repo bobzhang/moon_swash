@@ -50,7 +50,7 @@ pub fn ColorPalettes::len(self : ColorPalettes) -> Int32 {
 pub fn ColorPalettes::iter(self : ColorPalettes) -> Iter[ColorPalette] {
   let palettes = self
   let mut pos = 0
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     if pos >= palettes.len {
       return None
     }

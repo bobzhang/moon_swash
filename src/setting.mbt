@@ -114,7 +114,7 @@ fn parse_list_tokens(source : String) -> Iter[(Tag, StringView)] {
   let len = source.length()
   let mut pos = 0
   let mut stopped = false
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     if stopped {
       return None
     }
@@ -169,7 +169,7 @@ pub fn Setting::parse_feature(s : String) -> FeatureSetting? {
 ///|
 pub fn Setting::parse_feature_list(s : String) -> Iter[FeatureSetting] {
   let tokens = parse_list_tokens(s)
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     match tokens.next() {
       None => None
       Some((tag, value_sv)) => {
@@ -202,7 +202,7 @@ pub fn Setting::parse_variation(s : String) -> VariationSetting? {
 ///|
 pub fn Setting::parse_variation_list(s : String) -> Iter[VariationSetting] {
   let tokens = parse_list_tokens(s)
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     match tokens.next() {
       None => None
       Some((tag, value_sv)) =>

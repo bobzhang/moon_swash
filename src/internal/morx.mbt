@@ -52,7 +52,7 @@ pub fn MorxChains::iter(self : MorxChains) -> Iter[MorxChain] {
   let mut offset = self.offset
   let len = self.len
   let mut cur = self.cur
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     if cur >= len {
       return None
     }
@@ -104,7 +104,7 @@ pub fn MorxChain::features(self : MorxChain) -> Iter[MorxFeature] {
   let base = self.offset + 16
   let len = self.feature_count.reinterpret_as_int()
   let mut cur = 0
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     if cur >= len {
       return None
     }
@@ -165,7 +165,7 @@ pub fn MorxSubtables::iter(self : MorxSubtables) -> Iter[MorxSubtable] {
   let mut offset = self.offset
   let len = self.len
   let mut cur = self.cur
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     if cur >= len {
       return None
     }

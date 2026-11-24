@@ -202,7 +202,7 @@ fn LocalizedStrings::get(
 pub fn LocalizedStrings::iter(self : LocalizedStrings) -> Iter[LocalizedString] {
   let mut pos = 0
   let len = self.len
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     if pos >= len {
       return None
     }
@@ -296,7 +296,7 @@ pub fn LocalizedString::is_decodable(self : LocalizedString) -> Bool {
 pub fn LocalizedString::chars(self : LocalizedString) -> Iter[Char] {
   let encoding = self.encoding()
   if !encoding.is_decodable() {
-    return Iter::new(fn() { None })
+    return Iter::Iter(fn() { None })
   }
   let len_bytes = self.b
     .read_u16(self.offset + 8)
@@ -308,7 +308,7 @@ pub fn LocalizedString::chars(self : LocalizedString) -> Iter[Char] {
   match encoding {
     Unicode => {
       let mut cur = 0
-      Iter::new(fn() {
+      Iter::Iter(fn() {
         if cur >= len_bytes {
           return None
         }
@@ -334,11 +334,11 @@ pub fn LocalizedString::chars(self : LocalizedString) -> Iter[Char] {
     }
     MacRoman => {
       let bytes = match self.bytes() {
-        None => return Iter::new(fn() { None })
+        None => return Iter::Iter(fn() { None })
         Some(v) => v
       }
       let mut cur = 0
-      Iter::new(fn() {
+      Iter::Iter(fn() {
         if cur >= len_bytes {
           return None
         }
@@ -362,7 +362,7 @@ pub fn LocalizedString::chars(self : LocalizedString) -> Iter[Char] {
         }
       })
     }
-    Other(_, _) => Iter::new(fn() { None })
+    Other(_, _) => Iter::Iter(fn() { None })
   }
 }
 

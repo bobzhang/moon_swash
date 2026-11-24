@@ -216,10 +216,10 @@ pub fn Features::from_font(font : FontRef) -> Features {
 ///|
 pub fn Features::iter(self : Features) -> Iter[Feature] {
   match self.kind {
-    FeaturesKind::Empty => Iter::new(fn() { None })
+    FeaturesKind::Empty => Iter::Iter(fn() { None })
     FeaturesKind::At(af) => {
       let it = af.iter()
-      Iter::new(fn() {
+      Iter::Iter(fn() {
         match it.next() {
           None => None
           Some(f) => {
@@ -232,7 +232,7 @@ pub fn Features::iter(self : Features) -> Iter[Feature] {
     }
     FeaturesKind::AtAll(af) => {
       let it = af.iter()
-      Iter::new(fn() {
+      Iter::Iter(fn() {
         match it.next() {
           None => None
           Some((stage, tag)) => {
@@ -244,7 +244,7 @@ pub fn Features::iter(self : Features) -> Iter[Feature] {
     }
     FeaturesKind::Aat(af) => {
       let it = af.iter()
-      Iter::new(fn() {
+      Iter::Iter(fn() {
         match it.next() {
           None => None
           Some((tag, desc)) =>
@@ -284,7 +284,7 @@ fn AatWritingSystems::iter(self : AatWritingSystems) -> Iter[AatWritingSystem] {
   let morx = self.morx
   let kern = self.kern
   let mut done = false
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     if done {
       None
     } else {
@@ -326,10 +326,10 @@ pub fn WritingSystems::from_font(font : FontRef) -> WritingSystems {
 ///|
 pub fn WritingSystems::iter(self : WritingSystems) -> Iter[WritingSystem] {
   match self.kind {
-    WritingSystemsKind::Empty => Iter::new(fn() { None })
+    WritingSystemsKind::Empty => Iter::Iter(fn() { None })
     WritingSystemsKind::At(ws) => {
       let it = ws.iter()
-      Iter::new(fn() {
+      Iter::Iter(fn() {
         match it.next() {
           None => None
           Some(v) => {
@@ -347,7 +347,7 @@ pub fn WritingSystems::iter(self : WritingSystems) -> Iter[WritingSystem] {
     }
     WritingSystemsKind::Aat(ws) => {
       let it = ws.iter()
-      Iter::new(fn() {
+      Iter::Iter(fn() {
         match it.next() {
           None => None
           Some(v) =>

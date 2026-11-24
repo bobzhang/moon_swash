@@ -64,7 +64,7 @@ pub fn FontDataRef::get(self : FontDataRef, index : Int32) -> FontRef? {
 ///|
 pub fn FontDataRef::fonts(self : FontDataRef) -> Iter[FontRef] {
   let mut pos = 0
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     guard pos < self.len else { None }
     let i = pos
     pos = pos + 1

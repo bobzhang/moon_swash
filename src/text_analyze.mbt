@@ -71,7 +71,7 @@ pub fn Analyze::next(self : Analyze) -> (Properties, Boundary)? {
 ///|
 pub fn Analyze::iter(self : Analyze) -> Iter[(Properties, Boundary)] {
   let a = self
-  Iter::new(fn() { a.next() })
+  Iter::Iter(fn() { a.next() })
 }
 
 ///|

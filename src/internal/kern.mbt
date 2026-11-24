@@ -62,7 +62,7 @@ pub fn KernSubtables::iter(self : KernSubtables) -> Iter[KernSubtable] {
   let len = self.len
   let mut cur = self.cur
   let is_aat = self.is_aat
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     if cur >= len {
       return None
     }

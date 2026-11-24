@@ -41,7 +41,7 @@ fn AatFeatures::AatFeatures(
   AatFeatures::{
     chains,
     has_features: false,
-    features: Iter::new(fn() { None }),
+    features: Iter::Iter(fn() { None }),
     kern,
     seen: SeenFeatures::SeenFeatures(),
   }
@@ -54,7 +54,7 @@ fn AatFeatures::iter(self : AatFeatures) -> Iter[(Tag, String)] {
   let mut features = self.features
   let mut kern = self.kern
   let seen = self.seen
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     while true {
       if !has_features {
         match chains.next() {
