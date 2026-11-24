@@ -65,7 +65,7 @@ fn AtScripts::iter(self : AtScripts) -> Iter[AtScript] {
   let mut len = @internal.script_count(data, gsub).to_int()
   let mut cur = 0
   let mut done = false
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     while !done {
       if in_gsub {
         if cur < len {
@@ -162,7 +162,7 @@ fn AtLanguages::iter(self : AtLanguages) -> Iter[AtLangSys] {
   let mut len = @internal.script_language_count(data, gsub_script).to_int()
   let mut cur = 0
   let mut done = false
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     while !done {
       if in_gsub {
         if cur < len {
@@ -263,9 +263,9 @@ fn AtWritingSystems::AtWritingSystems(scripts : AtScripts) -> AtWritingSystems {
 fn AtWritingSystems::iter(self : AtWritingSystems) -> Iter[AtWritingSystem] {
   let scripts = self.scripts.iter()
   let mut has_langs = false
-  let mut langs = Iter::new(fn() { None })
+  let mut langs = Iter::Iter(fn() { None })
   let mut script_tag : Tag = 0U
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     while true {
       if !has_langs {
         match scripts.next() {
@@ -315,7 +315,7 @@ fn AtFeatures::iter(self : AtFeatures) -> Iter[AtFeature] {
   let mut len = @internal.language_feature_count(data, gsub_language).to_int()
   let mut cur = 0
   let mut done = false
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     while !done {
       let (table, language) = if stage == 0 {
         (gsub, gsub_language)
@@ -385,7 +385,7 @@ fn AtAllFeatures::iter(self : AtAllFeatures) -> Iter[(Int32, Tag)] {
   let mut stage = self.stage
   let mut len = self.len
   let mut cur = self.cur
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     while true {
       if cur >= len {
         if next_table == 0U {

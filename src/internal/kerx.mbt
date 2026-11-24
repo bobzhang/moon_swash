@@ -67,7 +67,7 @@ pub fn KerxSubtables::iter(self : KerxSubtables) -> Iter[KerxSubtable] {
   let len = self.len
   let mut cur = self.cur
   let ankr = self.ankr
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     if cur >= len {
       return None
     }

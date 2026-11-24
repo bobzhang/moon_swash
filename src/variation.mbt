@@ -129,7 +129,7 @@ pub fn Variations::normalized_coords(
     }
   }
   let mut pos = 0
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     if pos >= len0 {
       return None
     }
@@ -157,7 +157,7 @@ pub fn Variations::next(self : Variations) -> Variation? {
 ///|
 pub fn Variations::iter(self : Variations) -> Iter[Variation] {
   let it = self
-  Iter::new(fn() { it.next() })
+  Iter::Iter(fn() { it.next() })
 }
 
 ///|
@@ -327,7 +327,7 @@ pub fn Instances::next(self : Instances) -> Instance? {
 ///|
 pub fn Instances::iter(self : Instances) -> Iter[Instance] {
   let it = self
-  Iter::new(fn() { it.next() })
+  Iter::Iter(fn() { it.next() })
 }
 
 ///|

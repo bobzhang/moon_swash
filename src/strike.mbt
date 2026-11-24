@@ -210,7 +210,7 @@ pub fn BitmapStrikes::len(self : BitmapStrikes) -> Int32 {
 pub fn BitmapStrikes::iter(self : BitmapStrikes) -> Iter[BitmapStrike] {
   let strikes = self
   let mut pos = 0
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     if pos >= strikes.len {
       return None
     }

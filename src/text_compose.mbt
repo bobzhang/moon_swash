@@ -23,7 +23,7 @@ pub type Decompose = Iter[Char]
 ///|
 fn decompose_single(c : Char) -> Iter[Char] {
   let mut done = false
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     if done {
       None
     } else {
@@ -141,7 +141,7 @@ fn decompose_hangul(c : Int32) -> Iter[Char] {
   let t = (TBASE + ti).unsafe_to_char()
   let mut cur = 0
   let len = if ti > 0 { 3 } else { 2 }
-  Iter::new(fn() {
+  Iter::Iter(fn() {
     if cur >= len {
       return None
     }
@@ -172,7 +172,7 @@ pub fn decompose(c : Char) -> Iter[Char] {
       let len = decompose_data[index].reinterpret_as_int()
       let start = index + 1
       let mut cur = 0
-      Iter::new(fn() {
+      Iter::Iter(fn() {
         if cur >= len {
           return None
         }
@@ -203,7 +203,7 @@ pub fn decompose_compat(c : Char) -> Iter[Char] {
       let len = decompose_compat_data[index].reinterpret_as_int()
       let start = index + 1
       let mut cur = 0
-      Iter::new(fn() {
+      Iter::Iter(fn() {
         if cur >= len {
           return None
         }
